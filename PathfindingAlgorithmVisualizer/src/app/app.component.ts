@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'PathfindingAlgorithmVisualizer';
+  mode:number=0;
+  algorithm:number=0;
 }

@@ -1,27 +1,36 @@
 import { Injectable } from '@angular/core';
-import { interval, Subscription } from 'rxjs';
+import { interval, Subject, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlgorithmsService {
-  constructor() { }
-  movesStack:Array<Array<number>>=[];
-  parents:any={};
-  sub!:Subscription;
-  applyAlgorithm(board:Array<Array<number>>){
 
+  private movesStack:Array<Array<number>>=[];
+  private parents:any={};
+  private sub!:Subscription;
+  private buttonTitleSubject:Subject<Array<string>>=new Subject<Array<string>>();;
+  constructor() { }
+
+  getButtonTitleSubject():Subject<Array<string>>{
+    return this.buttonTitleSubject!;
+  }
+  applyAlgorithm(board:Array<Array<number>>){
+    this.buttonTitleSubject?.next(["Visualizing","btn-danger"]);
     let last=this.movesStack[this.movesStack.length-1];
-    this.sub =interval(50)
+    this.sub =interval(20)
     .subscribe(() => { 
       if(this.movesStack.length<=0){
         if(this.parents[last.toString()])
         {
+          this.buttonTitleSubject?.next(["Drawing path with","btn-warning"]);
           board[last[0]][last[1]]=4;
           let sub2=interval(100).subscribe(()=>{
             last=this.parents[last.toString()];
             if (last==undefined){
               sub2.unsubscribe();
+              this.buttonTitleSubject?.next(["Visualize","btn-primary"]);
+              this.parents={};
             }
             else{
               board[last[0]][last[1]]=5;
@@ -76,6 +85,5 @@ export class AlgorithmsService {
       }
     }
     this.parents={};
-    
   }
 }

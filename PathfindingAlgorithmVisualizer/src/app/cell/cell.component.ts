@@ -11,7 +11,7 @@ export class CellComponent implements OnInit {
   constructor() { }
   ngOnInit(): void {
     if(this.value==1){
-      this.backgroundColor='rgb(30, 144, 255)';
+      this.backgroundColor='rgba(0, 190, 218, 0.75)';
     }
     else if(this.value==2){
       this.backgroundColor='rgb(26, 26, 26)';

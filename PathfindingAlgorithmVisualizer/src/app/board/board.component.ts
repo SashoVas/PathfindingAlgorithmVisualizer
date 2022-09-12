@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AlgorithmsService } from '../services/algorithms.service';
 
 @Component({
@@ -6,19 +6,36 @@ import { AlgorithmsService } from '../services/algorithms.service';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent {
+export class BoardComponent implements OnInit {
   //0-nothing,1-visited,2-wall,3-start,4-end,5-finalPath
+  @Input()mode:number=0;
+  @Input()algorithm:number=0;
   board:Array<Array<number>>=Array.from({length: 20}, () => Array.from({length: 20}, () => 0));
   slideMode:boolean=false;
   startPos:Array<Array<number>>=[];
-  mode:number=1;
+  buttonTitle:string="Visualize BFS";
+  buttonColor:string="btn-primary";
   constructor(private algorithmService:AlgorithmsService){  }
+
+  ngOnInit(): void {
+    this.algorithmService.getButtonTitleSubject().subscribe((buttonInfo)=>{
+      this.buttonTitle=buttonInfo[0]+' '+this.getAlgorithmName();
+      this.buttonColor=buttonInfo[1];
+    });
+  }
+
+  private getAlgorithmName(){
+    if (this.algorithm==0){
+      return "BFS";
+    }
+    return "None"
+  }
+
   mouseDown(row:number,col:number){
     if(this.mode==2||this.mode==0){
       this.slideMode=true;
       this.board[row][col]=this.mode;
     }
-   
   }
   addWall(row:number,col:number){
     if(this.slideMode){
@@ -35,7 +52,10 @@ export class BoardComponent {
     }
   }
   BFS(){
-    this.algorithmService.breadFirstSearch(this.board,this.startPos);
+    if(this.algorithm==0){
+      this.algorithmService.breadFirstSearch(this.board,this.startPos);
+    }
+    
     this.algorithmService.applyAlgorithm(this.board);
   }
   clear(){
