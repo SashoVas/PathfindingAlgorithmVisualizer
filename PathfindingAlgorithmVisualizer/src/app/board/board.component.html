@@ -1,0 +1,15 @@
+<div class="mx-auto" ondragstart="return false;" ondrop="return false;">
+    <div class="d-flex justify-content-center mb-1">
+      <button class="btn btn-primary me-1" (click)="mode=0">Default</button>
+      <button class="btn btn-primary me-1" (click)="mode=2">WallMode</button>
+      <button class="btn btn-primary me-1" (click)="mode=3">Start Positions</button>
+      <button class="btn btn-primary me-1" (click)="mode=4">End</button>
+      <button class="btn btn-primary me-1" (click)="clear()">Clear</button>
+      <button class="btn btn-primary me-1" (click)="BFS()">BFS</button>
+    </div>
+    <table>
+        <tr *ngFor="let row of board;let rowPos=index">
+            <td *ngFor="let col of row;let colPos=index" (click)="cellClicked(rowPos,colPos)" (mouseup)="mouseUp()" (mousedown)="mouseDown(rowPos,colPos)" (mouseenter)="addWall(rowPos,colPos)"> <app-cell [value]="col"></app-cell></td>
+        </tr>
+    </table>
+</div>
