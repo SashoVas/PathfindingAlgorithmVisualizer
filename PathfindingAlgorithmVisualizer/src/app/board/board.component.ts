@@ -31,6 +31,9 @@ export class BoardComponent implements OnInit {
     return "None"
   }
 
+  trackByFn(row:number,col:number){
+    return row.toString()+col.toString();
+  }
   mouseDown(row:number,col:number){
     if(this.mode==2||this.mode==0){
       this.slideMode=true;
