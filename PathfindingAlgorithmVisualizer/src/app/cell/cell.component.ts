@@ -1,5 +1,6 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ICell } from '../interfaces/ICell';
 
 @Component({
   selector: 'app-cell',
@@ -30,22 +31,24 @@ import { Component, Input, OnInit } from '@angular/core';
     ])
   ],
 })
-export class CellComponent implements OnInit{
-  @Input()value!:number;
+export class CellComponent implements OnInit, OnChanges{
+  @Input()value!:ICell;
   backgroundColor:string='white';
   animation!:string;
   constructor() { }
-
+  ngOnChanges(changes: SimpleChanges): void {
+    //console.log(changes);
+  }
   ngOnInit(): void {
-    if(this.value==1){
+    if(this.value.state==1){
       this.backgroundColor='rgba(0, 190, 218, 0.75)';
       this.animation="visited";
     }
-    else if(this.value==2){
+    else if(this.value.state==2){
       this.backgroundColor='rgb(12, 53, 71)';
       this.animation="wall";
     }
-    else if(this.value==5){
+    else if(this.value.state==5){
       this.backgroundColor='rgba(255, 215, 0, 0.75)';
       this.animation="path";
     }

@@ -1,4 +1,4 @@
 <div [style.background-color]="backgroundColor"[@visited]="animation"[@wall]="animation"[@path]="animation">
-    <div *ngIf="value==3||value==4"[style.background-color]="value==3?'green':'red'" class="dot"></div>
+    <div *ngIf="value.state==3||value.state==4"[style.background-color]="value.state==3?'rgba(0, 247, 50, 0.75)':'rgba(250, 20, 20,0.75)'" class="dot"></div>
 </div>
 
