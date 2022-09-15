@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { interval, Subject, Subscription } from 'rxjs';
 import { ICell } from '../interfaces/ICell';
+import { INode } from '../interfaces/INode';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class AlgorithmsService {
   applyAlgorithm(board:Array<Array<ICell>>){
     this.buttonTitleSubject?.next(["Visualizing","btn-danger"]);
     let last=this.movesStack[this.movesStack.length-1];
-    this.sub =interval(20)
+    this.sub =interval(50)
     .subscribe(() => { 
       if(this.movesStack.length<=0){
         if(this.parents[last.toString()])
@@ -101,7 +102,7 @@ export class AlgorithmsService {
     }
     this.parents={};
   }
-  DFS(board:Array<Array<ICell>>,current:Array<number>,set:Set<string>):boolean{
+  private DFS(board:Array<Array<ICell>>,current:Array<number>,set:Set<string>):boolean{
     let row=current[0];
     let col=current[1];
     if(row<0||col<0||row>=board.length||col>=board[0].length)return false;
@@ -128,5 +129,70 @@ export class AlgorithmsService {
       if(this.DFS(board,[row,col-1],set))return true;
     }
     return false;
+  }
+  dijkstra(board:Array<Array<ICell>>,startPos:Array<Array<number>>){
+    //"1,2":[[1,2],5]
+    let ds=new Map<string,INode>();
+    startPos.forEach((item)=>ds.set(item.toString(),{position:item,value:0}));
+    let set = new Set<string>();
+    while(ds.size>0){
+      let key=this.getMinPos(ds)!;
+      if(key==null){
+        return;
+      }
+      let currentPos=ds.get(key);
+      let row=currentPos?.position[0]!; 
+      let col=currentPos?.position[1]!; 
+      ds.delete(key);
+      if(set.has(key)){
+        continue
+      }
+      set.add(key);
+      if(board[row][col].state==2)continue;
+      if(board[row][col].state!=3)this.movesStack.push(currentPos?.position!);
+      if(board[row][col].state==4){
+        return;
+      }
+      
+      if(board[row][col].state==0||board[row][col].state==3)
+      {
+        if(row>0 && !set.has([row-1,col].toString())){
+          if(!(ds.has([row-1,col].toString())&&ds.get([row-1,col].toString())!.value<currentPos?.value!+board[row-1][col].value)){
+            ds.set([row-1,col].toString(),{position:[row-1,col],value:currentPos?.value!+board[row-1][col].value});
+            if(board[row][col].state!=3)this.parents[[row-1,col].toString()]=currentPos?.position!;
+          }
+        }
+        if(col<board[0].length-1 && !set.has([row,col+1].toString())){
+          if(!(ds.has([row,col+1].toString())&&ds.get([row,col+1].toString())!.value<currentPos?.value!+board[row][col+1].value)){
+            ds.set([row,col+1].toString(),{position:[row,col+1],value:currentPos?.value!+board[row][col+1].value});
+            if(board[row][col].state!=3)this.parents[[row,col+1].toString()]=currentPos?.position!;
+          }
+        }
+        if(row<board.length-1 && !set.has([row+1,col].toString())){
+          if(!(ds.has([row+1,col].toString())&&ds.get([row+1,col].toString())!.value<currentPos?.value!+board[row+1][col].value)){
+            ds.set([row+1,col].toString(),{position:[row+1,col],value:currentPos?.value!+board[row+1][col].value});
+            if(board[row][col].state!=3)this.parents[[row+1,col].toString()]=currentPos?.position!;
+          }
+        }
+        if(col>0 && !set.has([row,col-1].toString())){
+          if(!(ds.has([row,col-1].toString())&&ds.get([row,col-1].toString())!.value<currentPos?.value!+board[row][col-1].value)){
+            ds.set([row,col-1].toString(),{position:[row,col-1],value:currentPos?.value!+board[row][col-1].value})
+            if(board[row][col].state!=3)this.parents[[row,col-1].toString()]=currentPos?.position!;            
+          }
+        }
+      }
+    }
+    this.parents={};
+  }
+  private getMinPos(ds:Map<string,INode>):string|null{
+    let minVal:number=Infinity;
+    let result:string|null=null;
+    ds.forEach((value,key)=>{
+      if(value.value<minVal){
+        minVal=value.value;
+        result=key;
+      }
+    })
+    return result;
   }
 }

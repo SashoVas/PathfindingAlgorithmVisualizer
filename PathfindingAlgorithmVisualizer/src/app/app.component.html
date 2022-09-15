@@ -13,6 +13,7 @@
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item pointer" (click)="algorithm=0">BFS</a></li>
             <li><a class="dropdown-item pointer" (click)="algorithm=1">DFS</a></li>
+            <li><a class="dropdown-item pointer" (click)="algorithm=2">Dijkstra</a></li>
           </ul>
         </li>
         <li class="nav-item">
@@ -20,6 +21,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link pointer text-white" (click)="mode=2">WallMode</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer text-white" (click)="mode=6">Bomb</a>
         </li>
         <li class="nav-item">
           <a class="nav-link pointer text-white" (click)="mode=3">Start Positions</a>

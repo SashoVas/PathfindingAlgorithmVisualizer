@@ -2,10 +2,11 @@
     <div class="d-flex justify-content-center mb-1">
       <button class="btn btn-primary me-1" (click)="clear()">Clear</button>
       <button [ngClass]="buttonColor" class="btn me-1" (click)="visualize()">{{buttonTitle+' '+getAlgorithmName()}}</button>
+      <button class="btn btn-primary me-1" (click)="clearPaths()">Clear Paths</button>
     </div>
     <table>
         <tr *ngFor="let row of board;let rowPos=index">
-            <td *ngFor="let col of row;let colPos=index" (click)="cellClicked(rowPos,colPos)" (mouseup)="mouseUp()" (mousedown)="mouseDown(rowPos,colPos)" (mouseenter)="addWall(rowPos,colPos)"> <app-cell [value]="col"></app-cell></td>
+            <td *ngFor="let col of row;let colPos=index" (mouseup)="mouseUp()" (mousedown)="mouseDown(rowPos,colPos)" (mouseenter)="addWall(rowPos,colPos)"> <app-cell [cell]="col"></app-cell></td>
         </tr>
     </table>
 </div>
