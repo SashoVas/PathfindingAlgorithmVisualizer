@@ -18,6 +18,7 @@ export class BoardComponent implements OnInit {
   startPos:Array<Array<number>>=[];
   buttonTitle:string="Visualize";
   buttonColor:string="btn-primary";
+  endPos:Array<Array<number>>=[];
   constructor(private algorithmService:AlgorithmsService){  }
 
   ngOnInit(): void {
@@ -37,6 +38,9 @@ export class BoardComponent implements OnInit {
     if(this.algorithm==2){
       return "Dijkstra";
     }
+    if(this.algorithm==3){
+      return "A*";
+    }
     return "None"
   }
   mouseDown(row:number,col:number){
@@ -51,6 +55,9 @@ export class BoardComponent implements OnInit {
     else if((this.mode==3||this.mode==4)&&this.mode!=this.board[row][col].state  ){
       if(this.mode==3){
        this.startPos.push([row,col]);
+      }
+      else {
+        this.endPos.push([row,col]);
       }
      this.board[row][col]={value:this.defaultValue,state:this.mode};
     }
@@ -100,6 +107,9 @@ export class BoardComponent implements OnInit {
     else if(this.algorithm==2){
       this.algorithmService.dijkstra(this.board,this.startPos);
     }
+    else if(this.algorithm==3){
+      this.algorithmService.AStar(this.board,this.startPos,this.endPos);
+    }
     this.algorithmService.applyAlgorithm(this.board);
     this.startPos=[];
     console.log(this.board);
@@ -107,5 +117,6 @@ export class BoardComponent implements OnInit {
   clear(){
     this.board=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
     this.startPos=[];
+    this.endPos=[];
   }
 }

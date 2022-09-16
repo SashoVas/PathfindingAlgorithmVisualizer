@@ -20,7 +20,7 @@ export class AlgorithmsService {
   applyAlgorithm(board:Array<Array<ICell>>){
     this.buttonTitleSubject?.next(["Visualizing","btn-danger"]);
     let last=this.movesStack[this.movesStack.length-1];
-    this.sub =interval(50)
+    this.sub =interval(20)
     .subscribe(() => { 
       if(this.movesStack.length<=0){
         if(this.parents[last.toString()])
@@ -133,7 +133,7 @@ export class AlgorithmsService {
   dijkstra(board:Array<Array<ICell>>,startPos:Array<Array<number>>){
     //"1,2":[[1,2],5]
     let ds=new Map<string,INode>();
-    startPos.forEach((item)=>ds.set(item.toString(),{position:item,value:0}));
+    startPos.forEach((item)=>ds.set(item.toString(),{position:item,value:0,AStarDistance:0}));
     let set = new Set<string>();
     while(ds.size>0){
       let key=this.getMinPos(ds)!;
@@ -158,25 +158,25 @@ export class AlgorithmsService {
       {
         if(row>0 && !set.has([row-1,col].toString())){
           if(!(ds.has([row-1,col].toString())&&ds.get([row-1,col].toString())!.value<currentPos?.value!+board[row-1][col].value)){
-            ds.set([row-1,col].toString(),{position:[row-1,col],value:currentPos?.value!+board[row-1][col].value});
+            ds.set([row-1,col].toString(),{position:[row-1,col],value:currentPos?.value!+board[row-1][col].value,AStarDistance:0});
             if(board[row][col].state!=3)this.parents[[row-1,col].toString()]=currentPos?.position!;
           }
         }
         if(col<board[0].length-1 && !set.has([row,col+1].toString())){
           if(!(ds.has([row,col+1].toString())&&ds.get([row,col+1].toString())!.value<currentPos?.value!+board[row][col+1].value)){
-            ds.set([row,col+1].toString(),{position:[row,col+1],value:currentPos?.value!+board[row][col+1].value});
+            ds.set([row,col+1].toString(),{position:[row,col+1],value:currentPos?.value!+board[row][col+1].value,AStarDistance:0});
             if(board[row][col].state!=3)this.parents[[row,col+1].toString()]=currentPos?.position!;
           }
         }
         if(row<board.length-1 && !set.has([row+1,col].toString())){
           if(!(ds.has([row+1,col].toString())&&ds.get([row+1,col].toString())!.value<currentPos?.value!+board[row+1][col].value)){
-            ds.set([row+1,col].toString(),{position:[row+1,col],value:currentPos?.value!+board[row+1][col].value});
+            ds.set([row+1,col].toString(),{position:[row+1,col],value:currentPos?.value!+board[row+1][col].value,AStarDistance:0});
             if(board[row][col].state!=3)this.parents[[row+1,col].toString()]=currentPos?.position!;
           }
         }
         if(col>0 && !set.has([row,col-1].toString())){
           if(!(ds.has([row,col-1].toString())&&ds.get([row,col-1].toString())!.value<currentPos?.value!+board[row][col-1].value)){
-            ds.set([row,col-1].toString(),{position:[row,col-1],value:currentPos?.value!+board[row][col-1].value})
+            ds.set([row,col-1].toString(),{position:[row,col-1],value:currentPos?.value!+board[row][col-1].value,AStarDistance:0})
             if(board[row][col].state!=3)this.parents[[row,col-1].toString()]=currentPos?.position!;            
           }
         }
@@ -194,5 +194,92 @@ export class AlgorithmsService {
       }
     })
     return result;
+  }
+  AStar(board:Array<Array<ICell>>,startPos:Array<Array<number>>,endPos:Array<Array<number>>){
+    //"1,2":[[1,2],5]
+    let ds=new Map<string,INode>();
+    startPos.forEach((item)=>ds.set(item.toString(),{position:item,value:0,AStarDistance:0}));
+    let set = new Set<string>();
+    while(ds.size>0){
+      let key=this.getMinPos(ds)!;
+      if(key==null){
+        return;
+      }
+      let currentPos=ds.get(key);
+      let row=currentPos?.position[0]!; 
+      let col=currentPos?.position[1]!; 
+      ds.delete(key);
+      if(set.has(key)){
+        continue
+      }
+      set.add(key);
+      if(board[row][col].state==2)continue;
+      if(board[row][col].state!=3)this.movesStack.push(currentPos?.position!);
+      if(board[row][col].state==4){
+        return;
+      }
+      if(board[row][col].state==0||board[row][col].state==3)
+      {
+        let oldDistanceFromEnd=currentPos?.AStarDistance!;
+        let currentValue=currentPos?.value!-oldDistanceFromEnd;
+        if(row>0 && !set.has([row-1,col].toString())){
+          let distanceFromEnd=Math.abs(endPos[0][0]-(row-1))+Math.abs(endPos[0][1]-col);
+          for(let i=1;i<endPos.length;i++){
+            let newDistance=Math.abs(endPos[i][0]-(row-1))+Math.abs(endPos[i][1]-col);
+            if(distanceFromEnd>newDistance){
+              distanceFromEnd=newDistance;
+            }
+          }
+          let netxCellValue=currentValue+board[row-1][col].value+distanceFromEnd;
+          if(!(ds.has([row-1,col].toString())&&ds.get([row-1,col].toString())!.value<netxCellValue)){
+            ds.set([row-1,col].toString(),{position:[row-1,col],value:netxCellValue,AStarDistance:distanceFromEnd});
+            if(board[row][col].state!=3)this.parents[[row-1,col].toString()]=currentPos?.position!;
+          }
+        }
+        if(col<board[0].length-1 && !set.has([row,col+1].toString())){
+          let distanceFromEnd=Math.abs(endPos[0][0]-row)+Math.abs(endPos[0][1]-(col+1));
+          for(let i=1;i<endPos.length;i++){
+            let newDistance=Math.abs(endPos[i][0]-row)+Math.abs(endPos[i][1]-(col+1));
+            if(distanceFromEnd>newDistance){
+              distanceFromEnd=newDistance;
+            }
+          }
+          let nextCellValue=currentValue+board[row][col+1].value+distanceFromEnd;
+          if(!(ds.has([row,col+1].toString())&&ds.get([row,col+1].toString())!.value<nextCellValue)){
+            ds.set([row,col+1].toString(),{position:[row,col+1],value:nextCellValue,AStarDistance:distanceFromEnd});
+            if(board[row][col].state!=3)this.parents[[row,col+1].toString()]=currentPos?.position!;
+          }
+        }
+        if(row<board.length-1 && !set.has([row+1,col].toString())){
+          let distanceFromEnd=Math.abs(endPos[0][0]-(row+1))+Math.abs(endPos[0][1]-col);
+          for(let i=1;i<endPos.length;i++){
+            let newDistance=Math.abs(endPos[i][0]-(row+1))+Math.abs(endPos[i][1]-col);
+            if(distanceFromEnd>newDistance){
+              distanceFromEnd=newDistance;
+            }
+          }
+          let nextCellValue=currentValue+board[row+1][col].value+distanceFromEnd;
+          if(!(ds.has([row+1,col].toString())&&ds.get([row+1,col].toString())!.value<nextCellValue)){
+            ds.set([row+1,col].toString(),{position:[row+1,col],value:nextCellValue,AStarDistance:distanceFromEnd});
+            if(board[row][col].state!=3)this.parents[[row+1,col].toString()]=currentPos?.position!;
+          }
+        }
+        if(col>0 && !set.has([row,col-1].toString())){
+          let distanceFromEnd=Math.abs(endPos[0][0]-row)+Math.abs(endPos[0][1]-(col-1));
+          for(let i=1;i<endPos.length;i++){
+            let newDistance=Math.abs(endPos[i][0]-row)+Math.abs(endPos[i][1]-(col-1));
+            if(distanceFromEnd>newDistance){
+              distanceFromEnd=newDistance;
+            }
+          }
+          let nextCellValue=currentValue+board[row][col-1].value+distanceFromEnd;
+          if(!(ds.has([row,col-1].toString())&&ds.get([row,col-1].toString())!.value<nextCellValue)){
+            ds.set([row,col-1].toString(),{position:[row,col-1],value:nextCellValue,AStarDistance:distanceFromEnd})
+            if(board[row][col].state!=3)this.parents[[row,col-1].toString()]=currentPos?.position!;            
+          }
+        }
+      }
+    }
+    this.parents={};
   }
 }
