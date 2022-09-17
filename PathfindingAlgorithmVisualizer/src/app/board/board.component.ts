@@ -15,16 +15,18 @@ export class BoardComponent implements OnInit {
   defaultValue:number=1;
   board:Array<Array<ICell>>=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
   slideMode:boolean=false;
-  startPos:Array<Array<number>>=[];
+  startPos:Array<number>=[];
   buttonTitle:string="Visualize";
   buttonColor:string="btn-primary";
-  endPos:Array<Array<number>>=[];
+  boardState:number=0;
+  endPos:Array<number>=[];
   constructor(private algorithmService:AlgorithmsService){  }
 
   ngOnInit(): void {
     this.algorithmService.getButtonTitleSubject().subscribe((buttonInfo)=>{
-      this.buttonTitle=buttonInfo[0];
-      this.buttonColor=buttonInfo[1];
+      this.buttonTitle=buttonInfo.buttonName;
+      this.buttonColor=buttonInfo.buttonStyle;
+      this.boardState=buttonInfo.boardState;
     });
   }
 
@@ -44,6 +46,12 @@ export class BoardComponent implements OnInit {
     return "None"
   }
   mouseDown(row:number,col:number){
+    this.slideMode=true;
+    if(this.boardState==0){
+      this.mouseDownWhenBoardIsClear(row,col);
+    }
+  }
+  private mouseDownWhenBoardIsClear(row:number,col:number){
     if(this.mode==6 && this.board[row][col].value!=this.value){
       this.slideMode=true;
       this.board[row][col]={value:this.value,state:0};
@@ -54,10 +62,16 @@ export class BoardComponent implements OnInit {
     }
     else if((this.mode==3||this.mode==4)&&this.mode!=this.board[row][col].state  ){
       if(this.mode==3){
-       this.startPos.push([row,col]);
+        if(this.startPos.length>0){
+          this.board[this.startPos![0]][this.startPos![1]]={value:this.defaultValue,state:0};
+        }
+        this.startPos=[row,col];
       }
       else {
-        this.endPos.push([row,col]);
+        if(this.endPos.length>0){
+          this.board[this.endPos![0]][this.endPos![1]]={value:this.defaultValue,state:0};
+        }
+        this.endPos=[row,col];
       }
      this.board[row][col]={value:this.defaultValue,state:this.mode};
     }
@@ -71,19 +85,70 @@ export class BoardComponent implements OnInit {
       for(let col=0;col<this.board[0].length;col++){
         if(this.board[row][col].state==1||this.board[row][col].state==5){
           this.board[row][col]={value:this.board[row][col].value,state:0};
-        }
-        else if(this.board[row][col].state==3){
-          this.startPos.push([row,col]);
+          //this.board[row][col].state=0;
         }
       }
     }
+    this.boardState=0;
+    this.algorithmService.clear();
   }
-  addWall(row:number,col:number){
+  mouseHover(row:number,col:number){
+    if(this.boardState==0){
+      this.mouseHoverWhenBoardIsClear(row,col);
+    }
+    else if(this.boardState==3){
+      this.mouseHoverWhneAlgorithmWasVisualized(row,col);
+    }
+  }
+  private mouseHoverWhneAlgorithmWasVisualized(row:number,col:number){
+    if(this.mode==4 && this.slideMode && this.board[row][col].state!=4){
+      this.board[this.endPos![0]][this.endPos![1]]={value:this.defaultValue,state:0};
+      this.endPos=[row,col];
+      
+      //if(this.board[row][col].state==1||this.board[row][col].state==5){
+      //  this.algorithmService.applyAlgorithmVisualizationWhenKnowEnd(this.board,this.endPos);
+      //}
+      //else{
+      //  //this.clearPaths();
+      //  //this.boardState=3;
+      //  this.visualize();
+      //  this.board[row][col]={value:this.defaultValue,state:this.mode};
+      //}
+      //this.algorithmService.clearPaths(this.board);
+      if(this.algorithm>1){
+        this.algorithmService.clearPaths(this.board);
+      }
+      this.visualize();
+      this.board[row][col]={value:this.defaultValue,state:this.mode};
+      this.board[this.startPos[0]][this.startPos[1]]={value:this.defaultValue,state:3};
+    }
+    else if(this.mode==3 && this.slideMode && this.board[row][col].state!=3){
+      this.board[this.startPos![0]][this.startPos![1]]={value:this.defaultValue,state:0};
+      this.startPos=[row,col];
+      
+      //if(this.board[row][col].state==1||this.board[row][col].state==5){
+      //  this.algorithmService.applyAlgorithmVisualizationWhenKnowEnd(this.board,this.endPos);
+      //}
+      //else{
+      //  //this.clearPaths();
+      //  //this.boardState=3;
+      //  this.visualize();
+      //  this.board[row][col]={value:this.defaultValue,state:this.mode};
+      //}
+      //this.clearPaths();
+      //this.boardState=3;
+      this.algorithmService.clearPaths(this.board);
+      this.visualize();
+      this.board[row][col]={value:this.defaultValue,state:this.mode};
+      this.board[this.endPos[0]][this.endPos[1]]={value:this.defaultValue,state:4};
+    }
+  }
+  private mouseHoverWhenBoardIsClear(row:number,col:number){
     if(this.slideMode && this.board[row][col].state!=this.mode){
       if(this.mode==6){
         if(this.board[row][col].value==this.defaultValue)this.board[row][col]={value:this.value,state:0};
       }
-      else{
+      else if(this.mode!=3 && this.mode!=4){
         this.board[row][col]={value:this.defaultValue,state:this.mode};
       }  
     }
@@ -110,13 +175,19 @@ export class BoardComponent implements OnInit {
     else if(this.algorithm==3){
       this.algorithmService.AStar(this.board,this.startPos,this.endPos);
     }
-    this.algorithmService.applyAlgorithm(this.board);
-    this.startPos=[];
-    console.log(this.board);
+    if(this.boardState==0){
+      this.algorithmService.applyAlgorithmVisualizationWithAnimations(this.board);
+    }
+    else{
+      this.algorithmService.applyAlgorithmVisualizationWithoutAnimations(this.board,this.endPos);
+    }
+    //this.startPos=[];
   }
   clear(){
+    this.boardState=0;
     this.board=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
     this.startPos=[];
     this.endPos=[];
+    this.algorithmService.clear();
   }
 }

@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, DoCheck, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ICell } from '../interfaces/ICell';
 
 @Component({
@@ -30,7 +30,7 @@ import { ICell } from '../interfaces/ICell';
       ])
     ]),
     trigger("popup",[
-      transition("void=>*",[
+      transition("void=>popup",[
         style({scale:0.3}),
         animate(100,style({scale:0.7})),
         animate(100,style({scale:1.2})),
@@ -39,24 +39,42 @@ import { ICell } from '../interfaces/ICell';
     ])
   ],
 })
-export class CellComponent implements OnInit{
+export class CellComponent implements OnInit,DoCheck{
+  @Input()boardState!:number;
   @Input()cell!:ICell;
   backgroundColor:string='white';
   animation!:string;
+  private oldState=0;
+  private oldValue=1;
   constructor() { }
-
+  ngDoCheck(): void {
+    
+    if(this.cell.state!==this.oldState||this.cell.value!==this.oldValue){
+      //console.log('yes');
+      this.oldState=this.cell.state;
+      this.oldValue=this.cell.value;
+      this.setColors();
+      //this.backgroundColor='white';
+    }
+  }
   ngOnInit(): void {
+    this.setColors();
+  }
+  setColors(){
+    if(this.cell.state==0){
+      this.backgroundColor='white';
+    }
     if(this.cell.state==1){
       this.backgroundColor='rgba(0, 190, 218, 0.75)';
-      this.animation="visited";
+      if(this.boardState!=3)this.animation="visited";
     }
     else if(this.cell.state==2){
       this.backgroundColor='rgb(12, 53, 71)';
-      this.animation="wall";
+      if(this.boardState!=3)this.animation="wall";
     }
     else if(this.cell.state==5){
       this.backgroundColor='rgba(255, 215, 0, 0.75)';
-      this.animation="path";
+      if(this.boardState!=3)this.animation="path";
     }
   }
 }
