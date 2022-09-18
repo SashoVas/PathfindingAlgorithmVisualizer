@@ -47,9 +47,7 @@ export class BoardComponent implements OnInit {
   }
   mouseDown(row:number,col:number){
     this.slideMode=true;
-    if(this.boardState==0){
-      this.mouseDownWhenBoardIsClear(row,col);
-    }
+    this.mouseDownWhenBoardIsClear(row,col);
   }
   private mouseDownWhenBoardIsClear(row:number,col:number){
     if(this.mode==6 && this.board[row][col].value!=this.value){
@@ -85,7 +83,6 @@ export class BoardComponent implements OnInit {
       for(let col=0;col<this.board[0].length;col++){
         if(this.board[row][col].state==1||this.board[row][col].state==5){
           this.board[row][col]={value:this.board[row][col].value,state:0};
-          //this.board[row][col].state=0;
         }
       }
     }
@@ -104,20 +101,8 @@ export class BoardComponent implements OnInit {
     if(this.mode==4 && this.slideMode && this.board[row][col].state!=4){
       this.board[this.endPos![0]][this.endPos![1]]={value:this.defaultValue,state:0};
       this.endPos=[row,col];
-      
-      //if(this.board[row][col].state==1||this.board[row][col].state==5){
-      //  this.algorithmService.applyAlgorithmVisualizationWhenKnowEnd(this.board,this.endPos);
-      //}
-      //else{
-      //  //this.clearPaths();
-      //  //this.boardState=3;
-      //  this.visualize();
-      //  this.board[row][col]={value:this.defaultValue,state:this.mode};
-      //}
-      //this.algorithmService.clearPaths(this.board);
-      if(this.algorithm>1){
-        this.algorithmService.clearPaths(this.board);
-      }
+      this.board[row][col]={value:this.defaultValue,state:this.mode};
+      this.algorithmService.clearPaths(this.board);
       this.visualize();
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.board[this.startPos[0]][this.startPos[1]]={value:this.defaultValue,state:3};
@@ -125,22 +110,20 @@ export class BoardComponent implements OnInit {
     else if(this.mode==3 && this.slideMode && this.board[row][col].state!=3){
       this.board[this.startPos![0]][this.startPos![1]]={value:this.defaultValue,state:0};
       this.startPos=[row,col];
-      
-      //if(this.board[row][col].state==1||this.board[row][col].state==5){
-      //  this.algorithmService.applyAlgorithmVisualizationWhenKnowEnd(this.board,this.endPos);
-      //}
-      //else{
-      //  //this.clearPaths();
-      //  //this.boardState=3;
-      //  this.visualize();
-      //  this.board[row][col]={value:this.defaultValue,state:this.mode};
-      //}
-      //this.clearPaths();
-      //this.boardState=3;
+      this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.algorithmService.clearPaths(this.board);
       this.visualize();
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.board[this.endPos[0]][this.endPos[1]]={value:this.defaultValue,state:4};
+    }
+    else if(this.mode==0 && this.slideMode && (this.board[row][col].value!=this.defaultValue || this.board[row][col].state!=0)){
+      this.board[row][col]={value:this.defaultValue,state:0};
+    }
+    else if(this.mode==2 && this.slideMode && this.board[row][col].state!=2){
+      this.board[row][col]={value:this.defaultValue,state:this.mode};
+    }
+    else if(this.mode==6 && this.slideMode && this.board[row][col].value==this.defaultValue){
+      this.board[row][col]={value:this.value,state:0};
     }
   }
   private mouseHoverWhenBoardIsClear(row:number,col:number){
@@ -181,7 +164,6 @@ export class BoardComponent implements OnInit {
     else{
       this.algorithmService.applyAlgorithmVisualizationWithoutAnimations(this.board,this.endPos);
     }
-    //this.startPos=[];
   }
   clear(){
     this.boardState=0;

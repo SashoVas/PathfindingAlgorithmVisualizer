@@ -50,11 +50,9 @@ export class CellComponent implements OnInit,DoCheck{
   ngDoCheck(): void {
     
     if(this.cell.state!==this.oldState||this.cell.value!==this.oldValue){
-      //console.log('yes');
       this.oldState=this.cell.state;
       this.oldValue=this.cell.value;
       this.setColors();
-      //this.backgroundColor='white';
     }
   }
   ngOnInit(): void {
@@ -70,7 +68,7 @@ export class CellComponent implements OnInit,DoCheck{
     }
     else if(this.cell.state==2){
       this.backgroundColor='rgb(12, 53, 71)';
-      if(this.boardState!=3)this.animation="wall";
+      this.animation="wall";
     }
     else if(this.cell.state==5){
       this.backgroundColor='rgba(255, 215, 0, 0.75)';

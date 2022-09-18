@@ -1,5 +1,5 @@
 <div [style.background-color]="backgroundColor"[@visited]="animation"[@wall]="animation"[@path]="animation">
     <div *ngIf="cell.state==3" [@popup]="boardState!=3?'popup':''" [style.color]="'rgba(0, 255, 20, 1)'"><i class="fa-regular fa-circle"></i></div>
     <div *ngIf="cell.state==4" [style.color]="'rgba(250, 20, 20,0.9)'" [@popup]="boardState!=3?'popup':''"><i class="fa-solid fa-bullseye"></i></div>
-    <div *ngIf="cell.value>1" [@popup]="boardState!=3?'popup':''"><i class="fa-solid fa-bomb"></i></div>
+    <div *ngIf="cell.value>1" [@popup]="'popup'"><i class="fa-solid fa-bomb"></i></div>
 </div>

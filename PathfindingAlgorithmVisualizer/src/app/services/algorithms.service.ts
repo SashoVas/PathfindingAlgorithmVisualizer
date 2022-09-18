@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { interval, Subject, Subscription } from 'rxjs';
+import { interval, last, Subject, Subscription } from 'rxjs';
 import { IBoardModeChange } from '../interfaces/IBoardModeChange';
 import { ICell } from '../interfaces/ICell';
 import { INode } from '../interfaces/INode';
@@ -26,8 +26,12 @@ export class AlgorithmsService {
     for(let i=0;i<this.movesStack.length;i++){
       let row=this.movesStack[i][0];
       let col=this.movesStack[i][1];
-      board[row][col].state=0;
+      if(board[row][col].state==1||board[row][col].state==5)
+      {
+        board[row][col].state=0;
+      }
     }
+    this.clear();
   }
   applyAlgorithmVisualizationWithoutAnimations(board:Array<Array<ICell>>,target:Array<number>){
     let found:boolean=false;
@@ -44,6 +48,11 @@ export class AlgorithmsService {
         board[row][col].state=1;
       }
     }
+    let last=this.movesStack[this.movesStack.length-1];
+    while(last!=undefined){
+      board[last[0]][last[1]].state=5;
+      last=this.parents[last.toString()];
+    }
   }
   applyAlgorithmVisualizationWithAnimations(board:Array<Array<ICell>>){
     let movesStackCopy=[...this.movesStack];
@@ -55,7 +64,6 @@ export class AlgorithmsService {
         if(this.parents[last.toString()])
         {
           this.buttonTitleSubject?.next({buttonName:"Drawing path with",buttonStyle:"btn-warning",boardState:2});
-          //board[last[0]][last[1]].state=4;
           board[last[0]][last[1]]={state:4,value:board[last[0]][last[1]].value};
           let sub2=interval(100).subscribe(()=>{
             last=this.parents[last.toString()];
@@ -65,7 +73,6 @@ export class AlgorithmsService {
               this.parents={};
             }
             else{
-              //board[last[0]][last[1]].state=5;
               board[last[0]][last[1]]={state:5,value:board[last[0]][last[1]].value};
             }
           })
@@ -80,14 +87,13 @@ export class AlgorithmsService {
         let current=movesStackCopy.shift();
         let row=current![0];
         let col=current![1];
-        //board[row][col].state=1;
         board[row][col]={state:1,value:board[row][col].value};
       }
     });
     
   }
   breadFirstSearch(board:Array<Array<ICell>>,start:Array<number>){
-    this.movesStack=[];
+    this.clear();
     let used:Array<Array<boolean>>=Array.from({length: board.length}, () => Array.from({length: board[0].length}, ()=>false));
     let stack=[start];
     let currentPos=0;
@@ -127,7 +133,7 @@ export class AlgorithmsService {
     this.parents={};
   }
   depthFirstSearch(board:Array<Array<ICell>>,start:Array<number>){
-    this.movesStack=[];
+    this.clear();
     let set = new Set<string>();
     let dfsOutput:boolean=this.DFS(board,start,set);
     board[start[0]][start[1]].state=3;
@@ -166,7 +172,7 @@ export class AlgorithmsService {
   }
   dijkstra(board:Array<Array<ICell>>,start:Array<number>){
     //"1,2":[[1,2],5]
-    this.movesStack=[];
+    this.clear();
     let ds=new Map<string,INode>();
     ds.set(start.toString(),{position:start,value:0,AStarDistance:0})
     let set = new Set<string>();
@@ -232,7 +238,7 @@ export class AlgorithmsService {
   }
   AStar(board:Array<Array<ICell>>,start:Array<number>,end:Array<number>){
     //"1,2":[[1,2],5]
-    this.movesStack=[];
+    this.clear();
     let ds=new Map<string,INode>();
     ds.set(start.toString(),{position:start,value:0,AStarDistance:0})
     let set = new Set<string>();
