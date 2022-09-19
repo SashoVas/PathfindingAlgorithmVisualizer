@@ -11,6 +11,7 @@ export class BoardComponent implements OnInit {
   //0-nothing,1-visited,2-wall,3-start,4-end,5-finalPath,6-bomb
   @Input()mode:number=0;
   @Input()algorithm:number=0;
+  private blockChange=false;
   value:number=5;
   defaultValue:number=1;
   board:Array<Array<ICell>>=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
@@ -99,7 +100,17 @@ export class BoardComponent implements OnInit {
   }
   private mouseHoverWhneAlgorithmWasVisualized(row:number,col:number){
     if(this.mode==4 && this.slideMode && this.board[row][col].state!=4){
-      this.board[this.endPos![0]][this.endPos![1]]={value:this.defaultValue,state:0};
+      if(this.blockChange){
+        this.board[this.endPos![0]][this.endPos![1]].state=2;
+        this.blockChange=false;
+      }
+      else{
+        this.board[this.endPos![0]][this.endPos![1]]={value:this.defaultValue,state:0};
+      }
+      
+      if(this.board[row][col].state==2){
+        this.blockChange=true;
+      }
       this.endPos=[row,col];
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.algorithmService.clearPaths(this.board);
@@ -108,7 +119,16 @@ export class BoardComponent implements OnInit {
       this.board[this.startPos[0]][this.startPos[1]]={value:this.defaultValue,state:3};
     }
     else if(this.mode==3 && this.slideMode && this.board[row][col].state!=3){
-      this.board[this.startPos![0]][this.startPos![1]]={value:this.defaultValue,state:0};
+      if(this.blockChange){
+        this.board[this.startPos![0]][this.startPos![1]].state=2;
+        this.blockChange=false;
+      }
+      else{
+        this.board[this.startPos![0]][this.startPos![1]]={value:this.defaultValue,state:0};
+      }
+      if(this.board[row][col].state==2){
+        this.blockChange=true;
+      }
       this.startPos=[row,col];
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.algorithmService.clearPaths(this.board);
