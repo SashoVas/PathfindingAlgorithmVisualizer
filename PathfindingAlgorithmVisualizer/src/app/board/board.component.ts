@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ICell } from '../interfaces/ICell';
 import { AlgorithmsService } from '../services/algorithms.service';
+import { MazeService } from '../services/maze.service';
 
 @Component({
   selector: 'app-board',
@@ -21,7 +22,7 @@ export class BoardComponent implements OnInit {
   buttonColor:string="btn-primary";
   boardState:number=0;
   endPos:Array<number>=[];
-  constructor(private algorithmService:AlgorithmsService){  }
+  constructor(private algorithmService:AlgorithmsService, private mazeService:MazeService){  }
 
   ngOnInit(): void {
     this.algorithmService.getButtonTitleSubject().subscribe((buttonInfo)=>{
@@ -30,7 +31,9 @@ export class BoardComponent implements OnInit {
       this.boardState=buttonInfo.boardState;
     });
   }
-
+   addMaze(){
+    this.mazeService.recursiveDevision(this.board);
+   }
    getAlgorithmName(){
     if (this.algorithm==0){
       return "BFS";
