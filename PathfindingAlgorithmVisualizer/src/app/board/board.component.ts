@@ -15,7 +15,7 @@ export class BoardComponent implements OnInit {
   private blockChange=false;
   value:number=5;
   defaultValue:number=1;
-  board:Array<Array<ICell>>=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
+  board:Array<Array<ICell>>=Array.from({length: 20}, () => Array.from({length: 40}, ()=>{return{value:this.defaultValue,state:0}}));
   slideMode:boolean=false;
   startPos:Array<number>=[];
   buttonTitle:string="Visualize";
@@ -31,8 +31,11 @@ export class BoardComponent implements OnInit {
       this.boardState=buttonInfo.boardState;
     });
   }
-   addMaze(){
-    this.mazeService.recursiveDevision(this.board);
+   addMaze(maze:number){
+    if(maze==0){
+      this.mazeService.recursiveDevision(this.board);
+    }
+    this.mazeService.aplyAlgorithm(this.board);
    }
    getAlgorithmName(){
     if (this.algorithm==0){
@@ -190,7 +193,7 @@ export class BoardComponent implements OnInit {
   }
   clear(){
     this.boardState=0;
-    this.board=Array.from({length: 20}, () => Array.from({length: 20}, ()=>{return{value:this.defaultValue,state:0}}));
+    this.board=Array.from({length: this.board.length}, () => Array.from({length: this.board[0].length}, ()=>{return{value:this.defaultValue,state:0}}));
     this.startPos=[];
     this.endPos=[];
     this.algorithmService.clear();

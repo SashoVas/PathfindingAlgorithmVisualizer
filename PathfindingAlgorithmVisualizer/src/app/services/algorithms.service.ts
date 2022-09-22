@@ -65,7 +65,7 @@ export class AlgorithmsService {
         {
           this.buttonTitleSubject?.next({buttonName:"Drawing path with",buttonStyle:"btn-warning",boardState:2});
           board[last[0]][last[1]]={state:4,value:board[last[0]][last[1]].value};
-          let sub2=interval(100).subscribe(()=>{
+          let sub2=interval(50).subscribe(()=>{
             last=this.parents[last.toString()];
             if (last==undefined){
               sub2.unsubscribe();

@@ -22,7 +22,7 @@
             Mazes
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item pointer" (click)="algorithm=0">Recursive division</a></li>
+            <li><a class="dropdown-item pointer" (click)="board.addMaze(0)">Recursive division</a></li>
           </ul>
         </li>
         <li class="nav-item">
@@ -44,4 +44,4 @@
     </div>
   </div>
 </nav>
-<app-board [mode]="mode" [algorithm]="algorithm"></app-board>
+<app-board #board [mode]="mode" [algorithm]="algorithm"></app-board>

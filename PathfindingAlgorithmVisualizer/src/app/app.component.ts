@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { BoardComponent } from './board/board.component';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,6 @@ export class AppComponent {
   title = 'PathfindingAlgorithmVisualizer';
   mode:number=0;
   algorithm:number=0;
+  @ViewChild("board")board!:BoardComponent;
+  
 }

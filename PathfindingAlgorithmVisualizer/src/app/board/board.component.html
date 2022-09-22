@@ -3,7 +3,6 @@
       <button class="btn btn-primary me-1" (click)="clear()">Clear</button>
       <button [ngClass]="buttonColor" class="btn me-1" (click)="visualize()">{{buttonTitle+' '+getAlgorithmName()}}</button>
       <button class="btn btn-primary me-1" (click)="clearPaths()">Clear Paths</button>
-      <button class="btn btn-primary me-1" (click)="addMaze()">Maze</button>
     </div>
     <table>
         <tr *ngFor="let row of board;let rowPos=index">
