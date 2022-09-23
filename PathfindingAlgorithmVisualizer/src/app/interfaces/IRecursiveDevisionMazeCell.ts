@@ -1,4 +1,4 @@
-export interface IMazeCell{
+export interface IRecursiveDevisionMazeCell{
     wallPos:number,
     wallEnd:number,
     wallStart:number,

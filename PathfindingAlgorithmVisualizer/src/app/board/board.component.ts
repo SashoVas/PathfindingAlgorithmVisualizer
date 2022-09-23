@@ -15,7 +15,7 @@ export class BoardComponent implements OnInit {
   private blockChange=false;
   value:number=5;
   defaultValue:number=1;
-  board:Array<Array<ICell>>=Array.from({length: 20}, () => Array.from({length: 40}, ()=>{return{value:this.defaultValue,state:0}}));
+  board:Array<Array<ICell>>=Array.from({length: 19}, () => Array.from({length: 39}, ()=>{return{value:this.defaultValue,state:0}}));
   slideMode:boolean=false;
   startPos:Array<number>=[];
   buttonTitle:string="Visualize";
@@ -33,9 +33,28 @@ export class BoardComponent implements OnInit {
   }
    addMaze(maze:number){
     if(maze==0){
+      this.clear();
       this.mazeService.recursiveDevision(this.board);
     }
-    this.mazeService.aplyAlgorithm(this.board);
+    else if(maze==1){
+      for(let row=0;row<this.board.length;row++){
+        for(let col=0;col<this.board[0].length;col++){
+          this.board[row][col].value=this.defaultValue;
+          this.board[row][col].state=2;
+        }
+      }
+      this.mazeService.randomizedDFS(this.board);
+    }
+    else if(maze==2){
+      for(let row=0;row<this.board.length;row++){
+        for(let col=0;col<this.board[0].length;col++){ 
+          this.board[row][col].value=this.defaultValue;
+          this.board[row][col].state=2;
+        }
+      }
+      this.mazeService.kruskal(this.board);
+    }
+    this.mazeService.visualizeMazeAlgorithm(this.board,maze);
    }
    getAlgorithmName(){
     if (this.algorithm==0){
