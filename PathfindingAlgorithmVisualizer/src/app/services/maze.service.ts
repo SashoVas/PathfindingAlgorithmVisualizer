@@ -30,8 +30,13 @@ export class MazeService {
     this.sub =interval(20)
     .subscribe(() => { 
       let current=this.movesOrderWhenAlgorithmCreatesPath.shift();
-      if(current==undefined)this.sub.unsubscribe();
-      board[current!.cellRow][current!.cellCol].state=0;
+      if(current==undefined){
+        this.sub.unsubscribe();
+      }
+      else{
+        board[current!.cellRow][current!.cellCol].state=0;
+      }
+      
     });
   }
   private applyRecursiveDevisionAlgorithm(board:Array<Array<ICell>>){
@@ -63,7 +68,7 @@ export class MazeService {
   private recursionForRecursiveDevision(board:Array<Array<ICell>>,wStart:number,wEnd:number,hStart:number,hEnd:number){
     if(wEnd-wStart>hEnd-hStart &&wEnd-wStart>=2){
       
-      let wallW=Math.floor(Math.random() * ((wEnd - wStart)-2) + wStart+1);
+      let wallW=Math.round(Math.random() * ((wEnd - wStart)-2) + wStart+1);
       let cellToAdd={wallPos:wallW,
         wallEnd:hEnd,
         wallStart:hStart,
@@ -83,7 +88,7 @@ export class MazeService {
         this.holes[hEnd][wallW]=true;
       }
       if(!first && !second){
-        let wallHole=Math.floor(Math.random() * (hEnd - hStart) + hStart);
+        let wallHole=Math.round(Math.random() * (hEnd - hStart) + hStart);
         cellToAdd.firstHole=wallHole;
         this.holes[wallHole][wallW]=true;
       }
@@ -92,7 +97,7 @@ export class MazeService {
       this.recursionForRecursiveDevision(board,wallW+1,wEnd,hStart,hEnd);
     }
     else if(wEnd-wStart<=hEnd-hStart&&hEnd-hStart>=2){
-      let wallH=Math.floor(Math.random() * ((hEnd - hStart)-2) + hStart+1);
+      let wallH=Math.round(Math.random() * ((hEnd - hStart)-2) + hStart+1);
       let cellToAdd={wallPos:wallH,
         wallEnd:wEnd,
         wallStart:wStart,
@@ -112,7 +117,7 @@ export class MazeService {
         this.holes[wallH][wEnd]=true;
       }
       if(!first && !second){
-        let wallHole=Math.floor(Math.random() * (wEnd - wStart) + wStart);
+        let wallHole=Math.round(Math.random() * (wEnd - wStart) + wStart);
         cellToAdd.firstHole=wallHole;
         this.holes[wallH][wallHole]=true;
       }
@@ -132,10 +137,9 @@ export class MazeService {
     this.holes[cellRow][cellCol]=false;
     this.movesOrderWhenAlgorithmCreatesPath.push({cellRow:cellRow,
       cellCol:cellCol});
-    //board[cellRow][cellCol].state=0;
     let visitingOrder:Array<Array<number>>=[[2,0,1,0],[0,2,0,1],[-2,0,-1,0],[0,-2,0,-1]];
     while(visitingOrder.length>0){
-      let currentPos=Math.floor(Math.random()*(visitingOrder.length-1));
+      let currentPos=Math.round(Math.random()*(visitingOrder.length-1));
       let current=visitingOrder[currentPos];
       visitingOrder[currentPos]=visitingOrder[visitingOrder.length-1];
       visitingOrder.pop();
@@ -143,8 +147,6 @@ export class MazeService {
         continue;
       }
       this.holes[cellRow+current[2]][cellCol+current[3]]=false;
-      //console.log(cellRow+current[2],cellCol+current[3])
-      //board[cellRow+current[2]][cellCol+current[3]].state=0;
       this.movesOrderWhenAlgorithmCreatesPath.push({cellRow:cellRow+current[2],
         cellCol:cellCol+current[3]});
       this.randomizedDFSRecursion(board,cellRow+current[0],cellCol+current[1]);

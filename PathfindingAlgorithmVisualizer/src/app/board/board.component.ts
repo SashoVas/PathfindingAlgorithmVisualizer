@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ICell } from '../interfaces/ICell';
 import { AlgorithmsService } from '../services/algorithms.service';
+import { BoardService } from '../services/board.service';
 import { MazeService } from '../services/maze.service';
 
 @Component({
@@ -22,7 +23,7 @@ export class BoardComponent implements OnInit {
   buttonColor:string="btn-primary";
   boardState:number=0;
   endPos:Array<number>=[];
-  constructor(private algorithmService:AlgorithmsService, private mazeService:MazeService){  }
+  constructor(private algorithmService:AlgorithmsService, private mazeService:MazeService,private boardService:BoardService){  }
 
   ngOnInit(): void {
     this.algorithmService.getButtonTitleSubject().subscribe((buttonInfo)=>{
@@ -32,26 +33,17 @@ export class BoardComponent implements OnInit {
     });
   }
    addMaze(maze:number){
+    this.boardState=0;
     if(maze==0){
       this.clear();
       this.mazeService.recursiveDevision(this.board);
     }
     else if(maze==1){
-      for(let row=0;row<this.board.length;row++){
-        for(let col=0;col<this.board[0].length;col++){
-          this.board[row][col].value=this.defaultValue;
-          this.board[row][col].state=2;
-        }
-      }
+      this.boardService.fillWalls(this.board,this.defaultValue);
       this.mazeService.randomizedDFS(this.board);
     }
     else if(maze==2){
-      for(let row=0;row<this.board.length;row++){
-        for(let col=0;col<this.board[0].length;col++){ 
-          this.board[row][col].value=this.defaultValue;
-          this.board[row][col].state=2;
-        }
-      }
+      this.boardService.fillWalls(this.board,this.defaultValue);
       this.mazeService.kruskal(this.board);
     }
     this.mazeService.visualizeMazeAlgorithm(this.board,maze);
@@ -100,22 +92,17 @@ export class BoardComponent implements OnInit {
      this.board[row][col]={value:this.defaultValue,state:this.mode};
     }
     else if(this.mode==0&&this.mode==this.board[row][col].state&&this.board[row][col].value==this.value){
-      this.board[row][col]={value:this.defaultValue,state:this.mode};
+      this.board[row][col]={value:this.defaultValue,state:0};
       this.slideMode=true;
    }
   }
   clearPaths(){
-    for(let row=0;row<this.board.length;row++){
-      for(let col=0;col<this.board[0].length;col++){
-        if(this.board[row][col].state==1||this.board[row][col].state==5){
-          this.board[row][col]={value:this.board[row][col].value,state:0};
-        }
-      }
-    }
+    this.boardService.clearPaths(this.board);
     this.boardState=0;
     this.algorithmService.clear();
   }
   mouseHover(row:number,col:number){
+    if(!this.slideMode)return;
     if(this.boardState==0){
       this.mouseHoverWhenBoardIsClear(row,col);
     }
@@ -124,9 +111,9 @@ export class BoardComponent implements OnInit {
     }
   }
   private mouseHoverWhneAlgorithmWasVisualized(row:number,col:number){
-    if(this.mode==4 && this.slideMode && this.board[row][col].state!=4){
+    if(this.mode==4 && this.board[row][col].state!=4){
       if(this.blockChange){
-        this.board[this.endPos![0]][this.endPos![1]].state=2;
+        this.board[this.endPos![0]][this.endPos![1]]={state:2,value:this.defaultValue};
         this.blockChange=false;
       }
       else{
@@ -143,9 +130,9 @@ export class BoardComponent implements OnInit {
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.board[this.startPos[0]][this.startPos[1]]={value:this.defaultValue,state:3};
     }
-    else if(this.mode==3 && this.slideMode && this.board[row][col].state!=3){
+    else if(this.mode==3 && this.board[row][col].state!=3){
       if(this.blockChange){
-        this.board[this.startPos![0]][this.startPos![1]].state=2;
+        this.board[this.startPos![0]][this.startPos![1]]={state:2,value:this.defaultValue};
         this.blockChange=false;
       }
       else{
@@ -161,26 +148,26 @@ export class BoardComponent implements OnInit {
       this.board[row][col]={value:this.defaultValue,state:this.mode};
       this.board[this.endPos[0]][this.endPos[1]]={value:this.defaultValue,state:4};
     }
-    else if(this.mode==0 && this.slideMode && (this.board[row][col].value!=this.defaultValue || this.board[row][col].state!=0)){
+    else if(this.mode==0 && (this.board[row][col].value!=this.defaultValue || this.board[row][col].state!=0)){
       this.board[row][col]={value:this.defaultValue,state:0};
     }
-    else if(this.mode==2 && this.slideMode && this.board[row][col].state!=2){
+    else if(this.mode==2 && this.board[row][col].state!=2){
       this.board[row][col]={value:this.defaultValue,state:this.mode};
     }
-    else if(this.mode==6 && this.slideMode && this.board[row][col].value==this.defaultValue){
+    else if(this.mode==6 &&this.board[row][col].value==this.defaultValue){
       this.board[row][col]={value:this.value,state:0};
     }
   }
   private mouseHoverWhenBoardIsClear(row:number,col:number){
-    if(this.slideMode && this.board[row][col].state!=this.mode){
+    if(this.board[row][col].state!=this.mode){
       if(this.mode==6){
         if(this.board[row][col].value==this.defaultValue)this.board[row][col]={value:this.value,state:0};
       }
       else if(this.mode!=3 && this.mode!=4){
         this.board[row][col]={value:this.defaultValue,state:this.mode};
-      }  
+      } 
     }
-    else if(this.slideMode&&this.mode==0&&this.mode==this.board[row][col].state&&this.board[row][col].value==this.value){
+    else if(this.mode==0&&this.mode==this.board[row][col].state&&this.board[row][col].value==this.value){
       this.board[row][col]={value:this.defaultValue,state:this.mode};
     }
   }
@@ -212,7 +199,7 @@ export class BoardComponent implements OnInit {
   }
   clear(){
     this.boardState=0;
-    this.board=Array.from({length: this.board.length}, () => Array.from({length: this.board[0].length}, ()=>{return{value:this.defaultValue,state:0}}));
+    this.boardService.clearBoard(this.board,this.defaultValue);
     this.startPos=[];
     this.endPos=[];
     this.algorithmService.clear();

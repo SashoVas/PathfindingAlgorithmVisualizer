@@ -20,12 +20,18 @@ import { ICell } from '../interfaces/ICell';
         style({scale:0.3}),
         animate(300,style({ scale:1.2})),
         animate(200,style({ scale:1}))
+      ]),
+      transition("wall=>none",[
+        style({scale:1,'background-color': 'rgb(12, 53, 71)'}),
+        animate(200,style({ scale:0.8,'background-color': 'rgb(12, 53, 71)','border-radius' : '20%'})),
+        animate(100,style({ scale:0.5,'background-color': 'rgb(12, 53, 71)','border-radius' : '50%'})),
+        animate(100,style({ scale:0.3,'background-color': 'rgb(12, 53, 71)','border-radius' : '70%'}))
       ])
     ]),
     trigger("path",[
       transition("void=>path",[
-      style({scale:0.5,'border-radius' : '25%'}),
-      animate(150,style({ scale:0.7,'border-radius' : '10%'})),
+      style({scale:0.5,'border-radius' : '70%'}),
+      animate(150,style({ scale:0.7,'border-radius' : '50%'})),
       animate(150,style({ scale:1,'border-radius' : '0%'}))
       ])
     ]),
@@ -48,11 +54,11 @@ export class CellComponent implements OnInit,DoCheck{
   private oldValue=1;
   constructor() { }
   ngDoCheck(): void {
-    
-    if(this.cell.state!==this.oldState||this.cell.value!==this.oldValue){
+    if(this.cell.state!=this.oldState||this.cell.value!==this.oldValue){
+      this.setColors();
       this.oldState=this.cell.state;
       this.oldValue=this.cell.value;
-      this.setColors();
+      
     }
   }
   ngOnInit(): void {
@@ -61,6 +67,8 @@ export class CellComponent implements OnInit,DoCheck{
   setColors(){
     if(this.cell.state==0){
       this.backgroundColor='white';
+      if(this.oldState==2)this.animation="none";
+      
     }
     if(this.cell.state==1){
       this.backgroundColor='rgba(0, 190, 218, 0.75)';
@@ -68,7 +76,7 @@ export class CellComponent implements OnInit,DoCheck{
     }
     else if(this.cell.state==2){
       this.backgroundColor='rgb(12, 53, 71)';
-      this.animation="wall";
+      if(this.boardState!=3)this.animation="wall";
     }
     else if(this.cell.state==5){
       this.backgroundColor='rgba(255, 215, 0, 0.75)';
